@@ -33,7 +33,7 @@ export default async function TarefasPage({ searchParams }: { searchParams: Prom
     <div>
       <h1 className="mb-6 text-2xl font-semibold">Todas as tarefas</h1>
       <TaskFilterBar profiles={profiles} categories={categories} isAdminView defaults={params} />
-      <TaskTable tasks={tasks} currentUserId={profile.id} showCreator />
+      <TaskTable tasks={tasks} currentUserId={profile.id} isAdmin showCreator />
     </div>
   );
 }

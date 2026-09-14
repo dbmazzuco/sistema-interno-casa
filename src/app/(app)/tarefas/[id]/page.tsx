@@ -33,7 +33,9 @@ export default async function TaskDetailPage({ params }: { params: Promise<{ id:
   const [history, profiles] = await Promise.all([getTaskHistory(task.id), getActiveProfiles()]);
 
   const canComplete =
-    task.assignee_id === profile.id && task.status !== "concluida" && task.status !== "cancelada";
+    (profile.role === "admin" || task.assignee_id === profile.id) &&
+    task.status !== "concluida" &&
+    task.status !== "cancelada";
   const canRequestChange = profile.role === "user" && task.status !== "cancelada";
 
   return (

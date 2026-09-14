@@ -12,10 +12,12 @@ function formatDate(value: string | null) {
 export function TaskTable({
   tasks,
   currentUserId,
+  isAdmin = false,
   showCreator = false,
 }: {
   tasks: TaskWithRelations[];
   currentUserId: string;
+  isAdmin?: boolean;
   showCreator?: boolean;
 }) {
   if (tasks.length === 0) {
@@ -56,9 +58,9 @@ export function TaskTable({
               <TableCell>{formatDate(task.due_date)}</TableCell>
               {showCreator && <TableCell>{task.creator_name ?? "—"}</TableCell>}
               <TableCell className="flex justify-end gap-2 text-right">
-                {task.assignee_id === currentUserId && task.status !== "concluida" && task.status !== "cancelada" && (
-                  <CompleteTaskButton taskId={task.id} />
-                )}
+                {(isAdmin || task.assignee_id === currentUserId) &&
+                  task.status !== "concluida" &&
+                  task.status !== "cancelada" && <CompleteTaskButton taskId={task.id} />}
                 <Link
                   href={`/tarefas/${task.id}`}
                   className="text-sm text-muted-foreground underline underline-offset-4"
