@@ -7,9 +7,5 @@ export default async function LoginPage({
 }) {
   const params = await searchParams;
 
-  return (
-    <div className="flex min-h-svh items-center justify-center p-4">
-      <LoginForm signupSent={params.cadastro === "enviado"} />
-    </div>
-  );
+  return <LoginForm signupSent={params.cadastro === "enviado"} />;
 }

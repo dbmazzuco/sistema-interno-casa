@@ -1,6 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
+import { CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { completeTaskAction } from "@/lib/actions/tasks";
@@ -12,6 +13,7 @@ export function CompleteTaskButton({ taskId }: { taskId: string }) {
     <Button
       size="sm"
       variant="outline"
+      className="rounded-xl"
       disabled={isPending}
       onClick={() =>
         startTransition(async () => {
@@ -24,6 +26,7 @@ export function CompleteTaskButton({ taskId }: { taskId: string }) {
         })
       }
     >
+      <CheckCircle2 className="size-4" />
       {isPending ? "Concluindo..." : "Concluir"}
     </Button>
   );

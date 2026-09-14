@@ -1,8 +1,15 @@
 "use client";
 
 import { useTransition } from "react";
+import { MoreHorizontal } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   decideUserSignupAction,
   setUserRoleAction,
@@ -34,6 +41,7 @@ export function UserRowActions({ user, isSelf }: { user: Profile; isSelf: boolea
       <div className="flex gap-2">
         <Button
           size="sm"
+          className="rounded-xl bg-success text-success-foreground hover:bg-success/90"
           disabled={isPending}
           onClick={() => run(() => decideUserSignupAction(user.id, true), "Usuário aprovado.")}
         >
@@ -42,6 +50,7 @@ export function UserRowActions({ user, isSelf }: { user: Profile; isSelf: boolea
         <Button
           size="sm"
           variant="outline"
+          className="rounded-xl"
           disabled={isPending}
           onClick={() => run(() => decideUserSignupAction(user.id, false), "Cadastro rejeitado.")}
         >
@@ -52,44 +61,43 @@ export function UserRowActions({ user, isSelf }: { user: Profile; isSelf: boolea
   }
 
   return (
-    <div className="flex flex-wrap gap-2">
-      <Button
-        size="sm"
-        variant="outline"
-        disabled={isPending}
-        onClick={() =>
-          run(
-            () => setUserRoleAction(user.id, user.role === "admin" ? "user" : "admin"),
-            "Perfil atualizado.",
-          )
-        }
-      >
-        {user.role === "admin" ? "Tornar usuário comum" : "Tornar admin"}
-      </Button>
-      <Button
-        size="sm"
-        variant="outline"
-        disabled={isPending}
-        onClick={() =>
-          run(
-            () => setUserActiveAction(user.id, user.status !== "ativo"),
-            user.status === "ativo" ? "Usuário desativado." : "Usuário ativado.",
-          )
-        }
-      >
-        {user.status === "ativo" ? "Desativar" : "Ativar"}
-      </Button>
-      <Button
-        size="sm"
-        variant="destructive"
-        disabled={isPending}
-        onClick={() => {
-          if (!confirm(`Excluir ${user.name} permanentemente?`)) return;
-          run(() => deleteUserAction(user.id), "Usuário excluído.");
-        }}
-      >
-        Excluir
-      </Button>
-    </div>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="icon" className="rounded-lg" disabled={isPending}>
+          <MoreHorizontal className="size-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem
+          onClick={() =>
+            run(
+              () => setUserRoleAction(user.id, user.role === "admin" ? "user" : "admin"),
+              "Perfil atualizado.",
+            )
+          }
+        >
+          {user.role === "admin" ? "Tornar usuário comum" : "Tornar admin"}
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() =>
+            run(
+              () => setUserActiveAction(user.id, user.status !== "ativo"),
+              user.status === "ativo" ? "Usuário desativado." : "Usuário ativado.",
+            )
+          }
+        >
+          {user.status === "ativo" ? "Desativar" : "Ativar"}
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          className="text-destructive focus:text-destructive"
+          onClick={() => {
+            if (!confirm(`Excluir ${user.name} permanentemente?`)) return;
+            run(() => deleteUserAction(user.id), "Usuário excluído.");
+          }}
+        >
+          Excluir
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

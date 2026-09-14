@@ -7,6 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -18,9 +25,6 @@ import {
 import { requestTaskChangeAction } from "@/lib/actions/tasks";
 import type { Profile, TaskPriority } from "@/lib/types/database";
 import type { TaskWithRelations } from "@/lib/data/tasks";
-
-const selectClass =
-  "h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs focus:outline-none focus:ring-1 focus:ring-ring";
 
 type ChangeType = "mudar_prazo" | "mudar_responsavel" | "mudar_prioridade" | "cancelar_tarefa" | "editar_tarefa";
 
@@ -83,8 +87,10 @@ export function RequestChangeDialog({ task, profiles }: { task: TaskWithRelation
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button variant="outline" size="sm" />}>
-        Solicitar alteração
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm" className="rounded-xl">
+          Solicitar alteração
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -95,17 +101,18 @@ export function RequestChangeDialog({ task, profiles }: { task: TaskWithRelation
         <div className="space-y-4">
           <div className="space-y-2">
             <Label>Tipo de alteração</Label>
-            <select
-              className={selectClass}
-              value={type}
-              onChange={(e) => setType(e.target.value as ChangeType)}
-            >
-              {Object.entries(TYPE_LABELS).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
+            <Select value={type} onValueChange={(v) => setType(v as ChangeType)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(TYPE_LABELS).map(([value, label]) => (
+                  <SelectItem key={value} value={value}>
+                    {label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {type === "mudar_prazo" && (
@@ -118,29 +125,35 @@ export function RequestChangeDialog({ task, profiles }: { task: TaskWithRelation
           {type === "mudar_responsavel" && (
             <div className="space-y-2">
               <Label>Novo responsável</Label>
-              <select className={selectClass} value={assigneeId} onChange={(e) => setAssigneeId(e.target.value)}>
-                {profiles.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name}
-                  </option>
-                ))}
-              </select>
+              <Select value={assigneeId} onValueChange={setAssigneeId}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {profiles.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           )}
 
           {type === "mudar_prioridade" && (
             <div className="space-y-2">
               <Label>Nova prioridade</Label>
-              <select
-                className={selectClass}
-                value={priority}
-                onChange={(e) => setPriority(e.target.value as TaskPriority)}
-              >
-                <option value="baixa">Baixa</option>
-                <option value="media">Média</option>
-                <option value="alta">Alta</option>
-                <option value="urgente">Urgente</option>
-              </select>
+              <Select value={priority} onValueChange={(v) => setPriority(v as TaskPriority)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="baixa">Baixa</SelectItem>
+                  <SelectItem value="media">Média</SelectItem>
+                  <SelectItem value="alta">Alta</SelectItem>
+                  <SelectItem value="urgente">Urgente</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           )}
 
@@ -164,7 +177,7 @@ export function RequestChangeDialog({ task, profiles }: { task: TaskWithRelation
         </div>
 
         <DialogFooter>
-          <Button onClick={submit} disabled={isPending}>
+          <Button onClick={submit} disabled={isPending} className="rounded-xl">
             {isPending ? "Enviando..." : "Enviar solicitação"}
           </Button>
         </DialogFooter>

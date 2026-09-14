@@ -5,11 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { ActionState } from "@/lib/actions/auth";
 import type { Profile, Category, RecurrenceType } from "@/lib/types/database";
-
-const selectClass =
-  "h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs focus:outline-none focus:ring-1 focus:ring-ring";
 
 export interface TaskFormDefaults {
   title?: string;
@@ -22,6 +26,33 @@ export interface TaskFormDefaults {
   dueDate?: string;
   notes?: string;
 }
+
+function Field({
+  label,
+  children,
+  hint,
+}: {
+  label: string;
+  children: React.ReactNode;
+  hint?: string;
+}) {
+  return (
+    <div className="space-y-2">
+      <Label className="text-sm font-semibold">{label}</Label>
+      {children}
+      {hint ? <p className="text-xs text-muted-foreground">{hint}</p> : null}
+    </div>
+  );
+}
+
+const RECURRENCE_OPTIONS: { value: RecurrenceType; label: string }[] = [
+  { value: "none", label: "Sem recorrência" },
+  { value: "daily", label: "Diária" },
+  { value: "weekly", label: "Semanal" },
+  { value: "biweekly", label: "Quinzenal" },
+  { value: "monthly", label: "Mensal" },
+  { value: "custom", label: "Personalizada" },
+];
 
 export function TaskForm({
   profiles,
@@ -40,128 +71,127 @@ export function TaskForm({
 }) {
   const [state, formAction, isPending] = useActionState(action, {} as ActionState);
   const [recurrenceType, setRecurrenceType] = useState<RecurrenceType>(defaultValues?.recurrenceType ?? "none");
+  const [assigneeId, setAssigneeId] = useState(defaultValues?.assigneeId ?? "");
+  const [priority, setPriority] = useState(defaultValues?.priority ?? "media");
+  const [categoryId, setCategoryId] = useState(
+    defaultValues?.categoryId ? String(defaultValues.categoryId) : "none",
+  );
 
   return (
-    <form action={formAction} className="max-w-xl space-y-4">
+    <form action={formAction} className="max-w-3xl space-y-5">
       {hiddenFields &&
-        Object.entries(hiddenFields).map(([name, value]) => <input key={name} type="hidden" name={name} value={value} />)}
+        Object.entries(hiddenFields).map(([name, value]) => (
+          <input key={name} type="hidden" name={name} value={value} />
+        ))}
+      <input type="hidden" name="assigneeId" value={assigneeId} />
+      <input type="hidden" name="priority" value={priority} />
+      <input type="hidden" name="categoryId" value={categoryId === "none" ? "" : categoryId} />
+      <input type="hidden" name="recurrenceType" value={recurrenceType} />
 
-      <div className="space-y-2">
-        <Label htmlFor="title">Título</Label>
-        <Input id="title" name="title" required defaultValue={defaultValues?.title} />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="description">Descrição</Label>
-        <Textarea id="description" name="description" defaultValue={defaultValues?.description} />
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="assigneeId">Responsável</Label>
-          <select
-            id="assigneeId"
-            name="assigneeId"
-            required
-            defaultValue={defaultValues?.assigneeId ?? ""}
-            className={selectClass}
-          >
-            <option value="" disabled>
-              Selecione
-            </option>
-            {profiles.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="priority">Prioridade</Label>
-          <select
-            id="priority"
-            name="priority"
-            defaultValue={defaultValues?.priority ?? "media"}
-            className={selectClass}
-          >
-            <option value="baixa">Baixa</option>
-            <option value="media">Média</option>
-            <option value="alta">Alta</option>
-            <option value="urgente">Urgente</option>
-          </select>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="categoryId">Categoria</Label>
-          <select
-            id="categoryId"
-            name="categoryId"
-            defaultValue={defaultValues?.categoryId ?? ""}
-            className={selectClass}
-          >
-            <option value="">Sem categoria</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="dueDate">Prazo</Label>
-          <Input
-            id="dueDate"
-            name="dueDate"
-            type="datetime-local"
-            required
-            defaultValue={defaultValues?.dueDate}
+      <div className="space-y-5 rounded-2xl border border-border bg-card p-6 shadow-soft">
+        <Field label="Título">
+          <Input name="title" required defaultValue={defaultValues?.title} placeholder="Ex: Trocar filtros do purificador" />
+        </Field>
+        <Field label="Descrição">
+          <Textarea
+            name="description"
+            rows={4}
+            defaultValue={defaultValues?.description}
+            placeholder="Detalhe o que precisa ser feito, materiais e observações."
           />
-        </div>
+        </Field>
+      </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="recurrenceType">Recorrência</Label>
-          <select
-            id="recurrenceType"
-            name="recurrenceType"
-            value={recurrenceType}
-            onChange={(e) => setRecurrenceType(e.target.value as RecurrenceType)}
-            className={selectClass}
-          >
-            <option value="none">Sem recorrência</option>
-            <option value="daily">Diária</option>
-            <option value="weekly">Semanal</option>
-            <option value="biweekly">Quinzenal</option>
-            <option value="monthly">Mensal</option>
-            <option value="custom">Personalizada</option>
-          </select>
-        </div>
+      <div className="grid gap-5 rounded-2xl border border-border bg-card p-6 shadow-soft sm:grid-cols-2">
+        <Field label="Responsável">
+          <Select value={assigneeId} onValueChange={setAssigneeId} required>
+            <SelectTrigger>
+              <SelectValue placeholder="Selecione" />
+            </SelectTrigger>
+            <SelectContent>
+              {profiles.map((p) => (
+                <SelectItem key={p.id} value={p.id}>
+                  {p.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Field>
+
+        <Field label="Categoria">
+          <Select value={categoryId} onValueChange={setCategoryId}>
+            <SelectTrigger>
+              <SelectValue placeholder="Selecione" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">Sem categoria</SelectItem>
+              {categories.map((c) => (
+                <SelectItem key={c.id} value={String(c.id)}>
+                  {c.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Field>
+
+        <Field label="Prazo">
+          <Input name="dueDate" type="datetime-local" required defaultValue={defaultValues?.dueDate} />
+        </Field>
+
+        <Field label="Prioridade">
+          <Select value={priority} onValueChange={setPriority}>
+            <SelectTrigger>
+              <SelectValue placeholder="Selecione" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="baixa">Baixa</SelectItem>
+              <SelectItem value="media">Média</SelectItem>
+              <SelectItem value="alta">Alta</SelectItem>
+              <SelectItem value="urgente">Urgente</SelectItem>
+            </SelectContent>
+          </Select>
+        </Field>
+
+        <Field label="Recorrência" hint="Tarefas recorrentes são recriadas automaticamente ao concluir.">
+          <Select value={recurrenceType} onValueChange={(v) => setRecurrenceType(v as RecurrenceType)}>
+            <SelectTrigger>
+              <SelectValue placeholder="Sem recorrência" />
+            </SelectTrigger>
+            <SelectContent>
+              {RECURRENCE_OPTIONS.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Field>
 
         {recurrenceType === "custom" && (
-          <div className="space-y-2">
-            <Label htmlFor="recurrenceIntervalDays">Repetir a cada quantos dias</Label>
+          <Field label="Repetir a cada quantos dias">
             <Input
-              id="recurrenceIntervalDays"
               name="recurrenceIntervalDays"
               type="number"
               min={1}
               defaultValue={defaultValues?.recurrenceIntervalDays ?? 7}
             />
-          </div>
+          </Field>
         )}
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="notes">Observações</Label>
-        <Textarea id="notes" name="notes" defaultValue={defaultValues?.notes} />
+      <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">
+        <Field label="Observações">
+          <Textarea name="notes" defaultValue={defaultValues?.notes} />
+        </Field>
       </div>
 
-      {state.error && <p className="text-sm text-red-600">{state.error}</p>}
+      {state.error && <p className="text-sm text-destructive">{state.error}</p>}
 
-      <Button type="submit" disabled={isPending}>
-        {isPending ? "Salvando..." : submitLabel}
-      </Button>
+      <div className="flex gap-3">
+        <Button type="submit" className="rounded-xl" disabled={isPending}>
+          {isPending ? "Salvando..." : submitLabel}
+        </Button>
+      </div>
     </form>
   );
 }

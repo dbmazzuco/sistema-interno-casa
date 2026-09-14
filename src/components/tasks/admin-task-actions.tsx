@@ -34,15 +34,15 @@ export function AdminTaskActions({ taskId, status }: { taskId: string; status: s
 
   return (
     <div className="flex flex-wrap gap-2">
-      <Button variant="outline" size="sm" onClick={() => router.push(`/tarefas/${taskId}/editar`)}>
+      <Button variant="outline" size="sm" className="rounded-xl" onClick={() => router.push(`/tarefas/${taskId}/editar`)}>
         Editar
       </Button>
       {status !== "cancelada" && status !== "concluida" && (
-        <Button variant="outline" size="sm" disabled={isPending} onClick={handleCancel}>
+        <Button variant="outline" size="sm" className="rounded-xl" disabled={isPending} onClick={handleCancel}>
           Cancelar tarefa
         </Button>
       )}
-      <Button variant="destructive" size="sm" disabled={isPending} onClick={handleDelete}>
+      <Button variant="destructive" size="sm" className="rounded-xl" disabled={isPending} onClick={handleDelete}>
         Excluir
       </Button>
     </div>

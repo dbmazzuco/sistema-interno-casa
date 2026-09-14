@@ -3,6 +3,7 @@ import { requireAdmin } from "@/lib/auth";
 import { getTaskById } from "@/lib/data/tasks";
 import { getActiveProfiles } from "@/lib/data/profiles";
 import { getCategories } from "@/lib/data/categories";
+import { PageHeader } from "@/components/app-shell";
 import { TaskForm } from "@/components/tasks/task-form";
 import { adminUpdateTaskAction } from "@/lib/actions/tasks";
 
@@ -28,7 +29,7 @@ export default async function EditarTarefaPage({ params }: { params: Promise<{ i
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-semibold">Editar tarefa</h1>
+      <PageHeader title="Editar tarefa" />
       <TaskForm
         profiles={profiles}
         categories={categories}

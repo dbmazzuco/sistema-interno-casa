@@ -1,14 +1,24 @@
 import { requireAdmin } from "@/lib/auth";
 import { getAllProfiles } from "@/lib/data/profiles";
+import { PageHeader } from "@/components/app-shell";
 import { UserRowActions } from "@/components/users/user-row-actions";
-import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Pill } from "@/components/task-badges";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
-const STATUS_CLASS: Record<string, string> = {
-  pendente: "bg-amber-100 text-amber-700",
-  ativo: "bg-green-100 text-green-700",
-  inativo: "bg-zinc-200 text-zinc-500",
+const STATUS_TONE: Record<string, "warning" | "success" | "neutral"> = {
+  pendente: "warning",
+  ativo: "success",
+  inativo: "neutral",
 };
+
+function initials(name: string) {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("");
+}
 
 export default async function UsuariosPage() {
   const admin = await requireAdmin();
@@ -16,34 +26,34 @@ export default async function UsuariosPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-semibold">Usuários</h1>
-      <div className="overflow-x-auto rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Nome</TableHead>
-              <TableHead>E-mail</TableHead>
-              <TableHead>Perfil</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Ações</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {profiles.map((p) => (
-              <TableRow key={p.id}>
-                <TableCell className="font-medium">{p.name}</TableCell>
-                <TableCell>{p.email}</TableCell>
-                <TableCell>{p.role === "admin" ? "Administrador" : "Usuário"}</TableCell>
-                <TableCell>
-                  <Badge className={STATUS_CLASS[p.status]}>{p.status}</Badge>
-                </TableCell>
-                <TableCell className="text-right">
-                  <UserRowActions user={p} isSelf={p.id === admin.id} />
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+      <PageHeader title="Usuários" subtitle={`${profiles.length} membros cadastrados`} />
+
+      <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-soft">
+        <ul className="divide-y divide-border">
+          {profiles.map((p) => (
+            <li key={p.id} className="flex items-center gap-4 p-4 transition-colors hover:bg-secondary/50">
+              <Avatar className="size-10">
+                <AvatarFallback className="bg-gradient-primary text-xs font-bold text-primary-foreground">
+                  {initials(p.name)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-medium">
+                  {p.name}
+                  {p.id === admin.id && <span className="ml-2 text-xs text-muted-foreground">(você)</span>}
+                </p>
+                <p className="truncate text-sm text-muted-foreground">{p.email}</p>
+              </div>
+              <div className="hidden sm:block">
+                <Pill tone={p.role === "admin" ? "info" : "neutral"}>
+                  {p.role === "admin" ? "Administrador" : "Usuário"}
+                </Pill>
+              </div>
+              <Pill tone={STATUS_TONE[p.status]}>{p.status}</Pill>
+              <UserRowActions user={p} isSelf={p.id === admin.id} />
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );
