@@ -10,7 +10,13 @@ import { Label } from "@/components/ui/label";
 
 const initialState: ActionState = {};
 
-export function LoginForm({ signupSent }: { signupSent: boolean }) {
+export function LoginForm({
+  signupSent,
+  passwordReset,
+}: {
+  signupSent: boolean;
+  passwordReset: boolean;
+}) {
   const [state, formAction, isPending] = useActionState(signInAction, initialState);
 
   return (
@@ -29,13 +35,24 @@ export function LoginForm({ signupSent }: { signupSent: boolean }) {
             </p>
           )}
 
+          {passwordReset && (
+            <p className="mt-4 rounded-xl bg-success/12 p-3 text-sm text-success">
+              Senha redefinida! Entre com a sua nova senha.
+            </p>
+          )}
+
           <form action={formAction} className="mt-8 space-y-4">
             <div className="space-y-2">
               <Label>E-mail</Label>
               <Input name="email" type="email" placeholder="voce@casa.com" required />
             </div>
             <div className="space-y-2">
-              <Label>Senha</Label>
+              <div className="flex items-center justify-between">
+                <Label>Senha</Label>
+                <Link href="/esqueci-senha" className="text-xs font-medium text-primary hover:underline">
+                  Esqueceu a senha?
+                </Link>
+              </div>
               <Input name="password" type="password" placeholder="••••••••" required />
             </div>
             {state.error && <p className="text-sm text-destructive">{state.error}</p>}
