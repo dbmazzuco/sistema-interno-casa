@@ -2,27 +2,25 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
 /**
- * Callback genérico de autenticação do Supabase (fluxo PKCE): troca o `code`
- * recebido por e-mail (recuperação de senha, confirmação, etc.) por uma
- * sessão válida via cookies, e então redireciona para o destino certo.
+ * Callback de autenticação do Supabase (fluxo PKCE): troca o `code` recebido
+ * por e-mail por uma sessão válida via cookies. Hoje essa rota só é usada
+ * pelo fluxo de recuperação de senha, então sempre manda para lá — o
+ * `type=recovery` que o Supabase anexa não chega de forma confiável nessa
+ * troca via `code`, então não dá pra confiar nele para decidir o destino.
  *
  * Importante: esta URL (sem querystring) precisa estar cadastrada
  * exatamente assim em Authentication > URL Configuration > Redirect URLs
- * no painel do Supabase — por isso não usamos um `?next=` aqui, para o
- * `redirectTo` enviado ao Supabase ser idêntico ao valor cadastrado. O
- * destino é decidido a partir do `type` que o Supabase mesmo já anexa.
+ * no painel do Supabase, senão ele cai no fallback do Site URL.
  */
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const type = searchParams.get("type");
-  const next = type === "recovery" ? "/redefinir-senha" : "/dashboard";
 
   if (code) {
     const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`);
+      return NextResponse.redirect(`${origin}/redefinir-senha`);
     }
   }
 
