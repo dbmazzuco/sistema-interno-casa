@@ -107,7 +107,7 @@ export async function requestPasswordResetAction(
   // Sempre retorna a mesma mensagem de sucesso, exista ou não o e-mail —
   // evita que alguém use este formulário para descobrir quem tem conta.
   await supabase.auth.resetPasswordForEmail(parsed.data.email, {
-    redirectTo: `${origin}/auth/confirm?next=/redefinir-senha`,
+    redirectTo: `${origin}/auth/confirm`,
   });
 
   return { success: GENERIC_RESET_MESSAGE };
