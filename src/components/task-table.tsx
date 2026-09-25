@@ -40,12 +40,10 @@ export function TaskTable({
   tasks,
   currentUserId,
   isAdmin = false,
-  showCreator = false,
 }: {
   tasks: TaskWithRelations[];
   currentUserId: string;
   isAdmin?: boolean;
-  showCreator?: boolean;
 }) {
   if (tasks.length === 0) {
     return (
@@ -68,11 +66,9 @@ export function TaskTable({
             <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Responsável
             </th>
-            {showCreator && (
-              <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Criado por
-              </th>
-            )}
+            <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Criado por
+            </th>
             <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Prazo
             </th>
@@ -114,9 +110,7 @@ export function TaskTable({
                   <span className="whitespace-nowrap">{task.assignee_name ?? "—"}</span>
                 </div>
               </td>
-              {showCreator && (
-                <td className="px-4 py-4 whitespace-nowrap text-muted-foreground">{task.creator_name ?? "—"}</td>
-              )}
+              <td className="px-4 py-4 whitespace-nowrap text-muted-foreground">{task.creator_name ?? "—"}</td>
               <td className="px-4 py-4 whitespace-nowrap tabular-nums text-muted-foreground">
                 {formatDate(task.due_date)}
               </td>
@@ -164,6 +158,9 @@ export function TaskTable({
                 {formatDate(task.due_date)}
               </span>
             </div>
+            {task.creator_name && task.creator_name !== task.assignee_name && (
+              <p className="mt-1.5 text-xs text-muted-foreground">Criado por {task.creator_name}</p>
+            )}
             {canComplete(task, currentUserId, isAdmin) && (
               <div className="mt-3">
                 <CompleteTaskButton taskId={task.id} />

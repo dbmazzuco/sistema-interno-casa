@@ -47,7 +47,7 @@ export default async function TarefasPage({ searchParams }: { searchParams: Prom
         }
       />
       <TaskFilterBar profiles={profiles} categories={categories} isAdminView />
-      <TaskTable tasks={tasks} currentUserId={profile.id} isAdmin showCreator />
+      <TaskTable tasks={tasks} currentUserId={profile.id} isAdmin />
     </div>
   );
 }
